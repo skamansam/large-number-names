@@ -75,12 +75,11 @@ describe('numbers.js', () => {
     [500, 250, 1503, 'Quingentillion', 'Thousand quinquagintaducentillion', 'Quinquagintaducentilliard', 'Triacontillion'],
     [600, 300, 1803, 'Sescentillion', 'Thousand trecentillion', 'Trecentilliard', 'Triacontillion'],
     [700, 350, 2103, 'Septingentillion', 'Thousand quinquagintatrecentillion', 'Quinquagintatrecentilliard', 'Triacontillion'],
-    [800, 400, 2403, 'Octingentillion', 'Thousand quadringentillion', 'Quadringentilliard', 'Triacontillion'],
-    [900, 450, 2703, 'Nongentillion', 'Thousand quinquagintaquadringentillion', 'Quinquagintaquadringentilliard', 'Triacontillion'],
-    [1000, 500, 3003, 'Millinillion', 'Thousand quingentillion', 'Quingentilliard', 'Triacontillion']
+    [800, 400, 2403, 'Octingentillion', 'Thousand quadringentillion', 'Quadringentilliard', 'Thousand Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion'],
+    [900, 450, 2703, 'Nongentillion', 'Thousand quinquagintaquadringentillion', 'Quinquagintaquadringentilliard', 'Thousand Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion'],
+    [1000, 500, 3003, 'Millinillion', 'Thousand quingentillion', 'Quingentilliard', 'Hendekillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion Triacontillion']
   ]
   for (let testNum of tests) {
-    console.info(testNum)
     let shortn, longn, exp, shortName, longName, intlName, greekName
     [shortn, longn, exp, shortName, longName, intlName, greekName] = testNum
     const num = '1e' + exp

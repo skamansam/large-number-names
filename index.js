@@ -79,7 +79,9 @@ SI Prefix
 900	450	102703	Nongentillion	  Thousand quinquagintaquadringentillion	Quinquagintaquadringentilliard
 1000	500	103003	Millinillion	Thousand quingentillion	Quingentilliard
 */
-import { Decimal } from 'decimal.js'
+import {
+  Decimal
+} from 'decimal.js'
 const NumberClass = Decimal
 
 export const NEW_GREEK = 0
@@ -87,7 +89,7 @@ export const SHORT = 1
 export const LONG = 2
 export const INTL = 3
 
-export function humanReadable (n, scale = SHORT) {
+export function humanReadable(n, scale = SHORT) {
   let num = new NumberClass(n)
   switch (scale) {
     case NEW_GREEK:
@@ -104,7 +106,7 @@ export function humanReadable (n, scale = SHORT) {
 }
 export default humanReadable
 
-export function _places (n) {
+export function _places(n) {
   let num = n
   if (!(n instanceof NumberClass)) {
     // console.error('NOT a BigNumber!')
@@ -116,12 +118,12 @@ export function _places (n) {
   return NumberClass.floor(NumberClass.log10(NumberClass.abs(num))).toNumber()
 }
 
-export function customScale (n, scaleFunction) {
+export function customScale(n, scaleFunction) {
   const numberLength = _places(n)
   return scaleFunction(n, numberLength)
 }
 
-function newGreekScale (n, len) {
+function newGreekScale(n, len) {
   if (n === undefined || n < 1000) {
     return ''
   }
@@ -186,11 +188,11 @@ export function findShortN(n) {
 }
 
 function shortScale(n, len) {
-  if(len == 1000) return 'Millinillion'
-  if(n < 10) return ''
-  if(n < 100) return 'Ten'
-  if(n < 1000) return 'Hundred'
-  if(len <= 10){
+  if (len == 1000) return 'Millinillion'
+  if (n < 10) return ''
+  if (n < 100) return 'Ten'
+  if (n < 1000) return 'Hundred'
+  if (len <= 10) {
     return [
       'Thousand', 'Million', 'Billion', 'Trillion', 'Quadrillion', 'Quintillion',
       'Sextillion', 'Septillion', 'Octillion', 'Nonillion', 'Decillion'
@@ -211,26 +213,27 @@ function shortScale(n, len) {
   let tensHundreds = correctWords(onesTens, hundredsPrefix[hundredsIdx])
 
   const lastLetter = tensHundreds[tensHundreds.length - 1]
-  if(lastLetter == 'i' || lastLetter == 'a' || lastLetter == 'o')
+  if (lastLetter == 'i' || lastLetter == 'a' || lastLetter == 'o')
     tensHundreds = tensHundreds.slice(0, tensHundreds.length - 1)
 
   let word = `${tensHundreds}${extraPrefix}`
   return initialCase(word)
 }
-function correctWords(prefix, suffix){
-  if(suffix == '') return prefix
-  if(prefix == '') return suffix
+
+function correctWords(prefix, suffix) {
+  if (suffix == '') return prefix
+  if (prefix == '') return suffix
 
   const treOrSe = prefix == 'se' || prefix == 'tre'
   const lastLetter = prefix[prefix.length - 1]
-  if(lastLetter != 'e') return `${prefix}${suffix}`
+  if (lastLetter != 'e') return `${prefix}${suffix}`
 
   const nextLetter = suffix[0]
   let conjoiner = ''
 
-  switch (nextLetter){
+  switch (nextLetter) {
     case 'c':
-      if(treOrSe) conjoiner = 's'
+      if (treOrSe) conjoiner = 's'
       break
     case 'o':
       conjoiner = 'x'
@@ -239,7 +242,7 @@ function correctWords(prefix, suffix){
       conjoiner = treOrSe ? 's' : 'm'
       break
     case 'd':
-      if(treOrSe) break
+      if (treOrSe) break
     case 's':
     case 'q':
     case 't':
@@ -247,11 +250,12 @@ function correctWords(prefix, suffix){
   }
   return initialCase(`${prefix}${conjoiner}${suffix}`)
 }
-function initialCase(string){
+
+function initialCase(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-function oldshortScale (n, len) {
+function oldshortScale(n, len) {
   // NOTE: 10^y = longNum ; y = log(longNum)
   //       10^(3n+3) = longNum
   //       3n+3 = log(longNum)
@@ -264,7 +268,7 @@ function oldshortScale (n, len) {
   // const maxDigits = 92
   const idx = Math.floor(len / 3)
   // short scale - US, Canada, Modern British
-  const lowerNumbers = [ '',
+  const lowerNumbers = ['',
     'Thousand', 'Million', 'Billion', 'Trillion', 'Quadrillion', 'Quintillion',
     'Sextillion', 'Septillion', 'Octillion', 'Nonillion', 'Decillion', 'Undecillion',
     'Duodecillion', 'Tredecillion', 'Quattuordecillion', 'Quinquadecillion',
@@ -298,20 +302,20 @@ function oldshortScale (n, len) {
   return result
 }
 
-function _calcShortScalePrefix(n, len, suffixLen){
+function _calcShortScalePrefix(n, len, suffixLen) {
   const calcPrefixes = ['', 'Un', 'duo', 'tres', 'quattuor', 'quinqua', 'ses', 'septen', 'octo', 'noven']
   const triplets = len / 3
   const idx = triplets % 10 // new suffix ecery 30 places
   let prefix = calcPrefixes[idx]
-  if(len - 30 > suffixLen){
+  if (len - 30 > suffixLen) {
     prefix = prefix + _calcShortScalePrefix(n, len - 30, suffixLen)
   }
   return prefix
 }
 
-function longScale (n, len) {
+function longScale(n, len) {
   // long scale - Traditional British
-  const dict = [ '',
+  const dict = ['',
     'Thousand', 'Million', 'Thousand million', 'Billion', 'Thousand billion', 'Trillion', 'Thousand trillion',
     'Quadrillion', 'Thousand quadrillion', 'Quintillion', 'Thousand quintillion', 'Sextillion',
     'Thousand sextillion', 'Septillion', 'Thousand septillion', 'Octillion', 'Thousand octillion',
@@ -335,7 +339,7 @@ function longScale (n, len) {
   return dict[n / 3]
 }
 
-function longIntlScale (n) {
+function longIntlScale(n) {
   // long scale - traditional european
   const dict = ['',
     'Thousand', 'Million', 'Milliard', 'Billion', 'Billiard', 'Trillion', 'Trilliard', 'Quadrillion',
@@ -357,4 +361,3 @@ function longIntlScale (n) {
   ]
   return dict[n / 3]
 }
-
