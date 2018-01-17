@@ -1,84 +1,3 @@
-// let NumberClass = require('bignumber.js')
-// NumberClass.config({ DECIMAL_PLACES: 15, ROUNDING_MODE: BigNumber.ROUND_DOWN })
-// let NumberClass = require('decimal.js')
-/*
-Base -illion (short scale)
-Base -illion (long scale)
-Value	US, Canada and modern British (short scale)
-Traditional British (long scale)
-Traditional European (Peletier) (long scale)
-SI Symbol
-SI Prefix
-1	  1	  10^6	  Million	Million	Million	M	Mega-
-2	  1	  10^9	  Billion	Thousand million	Milliard	G	Giga-
-3	  2	  10^12	  Trillion	Billion	Billion	T	Tera-
-4	  2	  10^15	  Quadrillion	Thousand billion	Billiard	P	Peta-
-5	  3	  10^18	  Quintillion	Trillion	Trillion	E	Exa-
-6	  3	  10^21	  Sextillion	Thousand trillion	Trilliard	Z	Zetta-
-7	  4	  10^24	  Septillion	Quadrillion	Quadrillion	Y	Yotta-
-8	  4	  10^27	  Octillion	Thousand quadrillion	Quadrilliard
-9	  5	  10^30	  Nonillion	Quintillion	Quintillion
-10	5	  10^33	  Decillion	Thousand quintillion	Quintilliard
-11	6	  10^36	  Undecillion	Sextillion	Sextillion
-12	6	  10^39	  Duodecillion	Thousand sextillion	Sextilliard
-13	7	  10^42	  Tredecillion	Septillion	Septillion
-14	7	  10^45	  Quattuordecillion	Thousand septillion	Septilliard
-15	8	  10^48	  Quinquadecillion	Octillion	Octillion
-16	8	  10^51	  Sedecillion	Thousand octillion	Octilliard
-17	9	  10^54	  Septendecillion	        Nonillion	Nonillion
-18	9	  10^57	  Octodecillion	          Thousand nonillion	Nonilliard
-19	10	10^60	  Novendecillion	        Decillion	Decillion
-20	10	10^63	  Vigintillion	          Thousand decillion	Decilliard
-21	11	1066	  Unvigintillion	        Undecillion	Undecillion
-22	11	1069	  Duovigintillion	        Thousand undecillion	Undecilliard
-23	12	1072	  Tresvigintillion	      Duodecillion	Duodecillion
-24	12	1075	  Quattuorvigintillion	  Thousand duodecillion	Duodecilliard
-25	13	1078	  Quinquavigintillion	    Tredecillion	Tredecillion
-26	13	1081	  Sesvigintillion	        Thousand tredecillion	Tredecilliard
-27	14	1084	  Septemvigintillion	Quattuordecillion	Quattuordecillion
-28	14	1087	  Octovigintillion	Thousand quattuordecillion	Quattuordecilliard
-29	15	1090	  Novemvigintillion	Quindecillion	Quindecillion
-30	15	1093	  Trigintillion	Thousand quindecillion	Quindecilliard
-31	16	1096	  Untrigintillion	Sedecillion	Sedecillion
-32	16	1099	  Duotrigintillion	Thousand sedecillion	Sedecilliard
-33	17	10102	  Trestrigintillion	Septendecillion	Septendecillion
-34	17	10105	  Quattuortrigintillion	Thousand septendecillion	Septendecilliard
-35	18	10108	  Quinquatrigintillion	Octodecillion	Octodecillion
-36	18	10111	  Sestrigintillion	Thousand octodecillion	Octodecilliard
-37	19	10114	  Septentrigintillion	Novendecillion	Novendecillion
-38	19	10117	  Octotrigintillion	Thousand novendecillion	Novendecilliard
-39	20	10120	  Noventrigintillion	Vigintillion	Vigintillion
-40	20	10123	  Quadragintillion	Thousand vigintillion	Vigintilliard
-50	25	10153	  Quinquagintillion	Thousand quinquavigintillion	Quinquavigintilliard
-60	30	10183	  Sexagintillion	Thousand trigintillion	Trigintilliard
-70	35	10213	  Septuagintillion	Thousand quinquatrigintillion	Quinquatrigintilliard
-80	40	10243	  Octogintillion	Thousand quadragintillion	Quadragintilliard
-90	45	10273	  Nonagintillion	Thousand quinquaquadragintillion	Quinquaquadragintilliard
-100	50	10303	  Centillion	Thousand quinquagintillion	Quinquagintilliard
-101	51	10306	  Uncentillion	Unquinquagintillion	Unquinquagintillion
-102	51	10309	  Duocentillion	Thousand unquinquagintillion	Unquinquagintilliard
-103	52	10312	  Trescentillion	Duoquinquagintillion	Duoquinquagintillion
-110	55	10333	  Decicentillion	Thousand quinquaquinquagintillion	Quinquaquinquagintilliard
-111	56	10336	  Undecicentillion	Sesquinquagintillion	Sesquinquagintillion
-120	60	10363	  Viginticentillion	Thousand sexagintillion	Sexagintilliard
-121	61	10366	  Unviginticentillion	Unsexagintillion	Unsexagintillion
-130	65	10393	  Trigintacentillion	Thousand quinquasexagintillion	Quinquasexagintilliard
-140	70	10423	  Quadragintacentillion	Thousand septuagintillion	Septuagintilliard
-150	75	10453	  Quinquagintacentillion	Thousand quinquaseptuagintillion	Quinquaseptuagintilliard
-160	80	10483	  Sexagintacentillion	Thousand octogintillion	Octogintilliard
-170	85	10513	  Septuagintacentillion	Thousand quinquaoctogintillion	Quinquaoctogintilliard
-180	90	10543	  Octogintacentillion	Thousand nonagintillion	Nonagintilliard
-190	95	10573	  Nonagintacentillion	Thousand quinquanonagintillion	Quinquanonagintilliard
-200	100	10603	  Ducentillion	Thousand centillion	Centilliard
-300	150	10903	  Trecentillion	Thousand quinquagintacentillion	Quinquagintacentilliard
-400	200	101203  Quadringentillion	Thousand ducentillion	Ducentilliard
-500	250	101503  Quingentillion	Thousand quinquagintaducentillion	Quinquagintaducentilliard
-600	300	101803 	Sescentillion	Thousand trecentillion	Trecentilliard
-700	350	102103 	Septingentillion	Thousand quinquagintatrecentillion	Quinquagintatrecentilliard
-800	400	102403	Octingentillion	Thousand quadringentillion	Quadringentilliard
-900	450	102703	Nongentillion	  Thousand quinquagintaquadringentillion	Quinquagintaquadringentilliard
-1000	500	103003	Millinillion	Thousand quingentillion	Quingentilliard
-*/
 import {
   Decimal
 } from 'decimal.js'
@@ -109,7 +28,6 @@ export default humanReadable
 export function _places(n) {
   let num = n
   if (!(n instanceof NumberClass)) {
-    // console.error('NOT a BigNumber!')
     num = new NumberClass(n)
   }
   if (num < 10) {

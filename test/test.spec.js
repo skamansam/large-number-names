@@ -102,4 +102,14 @@ describe('numbers.js', () => {
       })
     })
   }
+  describe('testing custom function', () => {
+    function myFun(num, len) {
+      if (len >= 24) {
+        return 'Z' + myFun(num, len - 24)
+      }
+      return String.fromCharCode(len + 96)
+    }
+    const res = Numbers.humanReadable('1e33', myFun)
+    expect(res).to.equal('Zi')
+  })
 })
