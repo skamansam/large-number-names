@@ -6,7 +6,7 @@
   "scripts": {
     "test": "mocha --compilers js:babel-core/register ./test/**/*.spec.js",
     "lint": "eslint --ext .js,.vue src test/unit/specs test/e2e/specs",
-    "cover": "babel-node node_modules/istanbul/lib/cli cover _mocha --compilers js:babel-core/register ./test/**/*.spec.js"
+    "cover": "babel-node node_modules/istanbul/lib/cli cover _mocha --compilers js:babel-core/register -- ./test/**/*.spec.js"
   },
   "repository": {
     "type": "git",
