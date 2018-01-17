@@ -1,6 +1,4 @@
-import {
-  Decimal
-} from 'decimal.js'
+import Decimal from 'decimal.js'
 const NumberClass = Decimal
 
 export const NEW_GREEK = 0
