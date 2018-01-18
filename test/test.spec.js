@@ -92,12 +92,12 @@ describe('numbers.js', () => {
         expect(Numbers._places(num)).to.equal(exp)
       })
       it('10^' + exp + ' should have the correct short: ' + shortName, () => {
-        let res = Numbers.humanReadable(num, Numbers.SHORT)
+        let res = Numbers.humanReadable(num, Numbers.SHORT_SCALE)
         expect(res).to.be.a('string')
         expect(res).to.equal(shortName)
       })
       it('10^' + exp + ' should have the correct greek: ' + greekName, () => {
-        let res = Numbers.humanReadable(num, Numbers.NEW_GREEK)
+        let res = Numbers.humanReadable(num, Numbers.GREEK_SCALE)
         expect(res).to.be.a('string')
         expect(res).to.equal(greekName)
       })
