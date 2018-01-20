@@ -44,6 +44,8 @@ export function humanReadable(n, scale = SHORT) {
       return customScale(num, longScale)
     case INTL_SCALE:
       return customScale(num, longIntlScale)
+    case GAME_SCALE:
+      return customScale(num, gameScale)
     default:
       return customScale(num, scale)
   }
@@ -80,33 +82,9 @@ function newGreekScale(n, len) {
   } else {
     result = GREEK_SCALE_DICT[idx]
   }
-  return result
+  return capitalize(result)
 }
 
-/*
-The naming procedure for large numbers is based on taking the number n occurring in
-10^(3n+3) (short scale) or 10^6n (long scale) and concatenating Latin roots for its
-units, tens, and hundreds place, together with the suffix -illion. In this way,
-numbers up to 10^3·999+3 = 10^3000 (short scale) or 10^6·999 = 10^5994 (long scale) may
-be named. The choice of roots and the concatenation procedure is that of the
-standard dictionary numbers if n is 20 or smaller. For larger n (between 21 and 999),
-prefixes can be constructed based on a system described by John Horton Conway and
-Richard K. Guy:
-
-  Units	    Tens	            Hundreds
-1	Un	      Deci (N)	        Centi (NX)
-2	Duo	      Viginti (MS)	    Ducenti (N)
-3	Tre*	    Triginta (NS)	    Trecenti (NS)
-4	Quattuor	Quadraginta (NS)  Quadringenti (NS)
-5	Quinqua   Quinquaginta (NS) Quingenti (NS)
-6	Se*	      Sexaginta (N)	    Sescenti (N)
-7	Septe*	  Septuaginta (N)	  Septingenti (N)
-8	Octo	    Octoginta(MX)	    Octingenti (MX)
-9	Nove*	    Nonaginta	        Nongenti
-(*) ^ When preceding a component marked S or X, “tre” changes to “tres” and “se”
-      to “ses” or “sex”; similarly, when preceding a component marked M or N,
-      “septe” and “nove” change to “septem” and “novem” or “septen” and “noven”.
-*/
 export function findShortN(n) {
   let num = n
   if (!(n instanceof NumberClass)) {
@@ -139,8 +117,7 @@ function shortScale(n, len) {
   if (lastLetter == 'i' || lastLetter == 'a' || lastLetter == 'o')
     tensHundreds = tensHundreds.slice(0, tensHundreds.length - 1)
 
-  let word = `${tensHundreds}${extraPrefix}`
-  return initialCase(word)
+  return capitalize(`${tensHundreds}${extraPrefix}`)
 }
 
 function correctWords(prefix, suffix) {
@@ -171,58 +148,59 @@ function correctWords(prefix, suffix) {
     case 't':
       conjoiner = treOrSe ? 's' : 'n'
   }
-  return initialCase(`${prefix}${conjoiner}${suffix}`)
+  return `${prefix}${conjoiner}${suffix}`
 }
 
-function initialCase(string) {
+function _initialCase(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-function longScale(n, len) {
-  // long scale - Traditional British
-  const dict = ['',
-    'Thousand', 'Million', 'Thousand million', 'Billion', 'Thousand billion', 'Trillion', 'Thousand trillion',
-    'Quadrillion', 'Thousand quadrillion', 'Quintillion', 'Thousand quintillion', 'Sextillion',
-    'Thousand sextillion', 'Septillion', 'Thousand septillion', 'Octillion', 'Thousand octillion',
-    'Nonillion', 'Thousand nonillion', 'Decillion', 'Thousand decillion', 'Undecillion',
-    'Thousand undecillion', 'Duodecillion', 'Thousand duodecillion', 'Tredecillion',
-    'Thousand tredecillion', 'Quattuordecillion', 'Thousand quattuordecillion', 'Quindecillion',
-    'Thousand quindecillion', 'Sedecillion', 'Thousand sedecillion', 'Septendecillion',
-    'Thousand septendecillion', 'Octodecillion', 'Thousand octodecillion', 'Novendecillion',
-    'Thousand novendecillion', 'Vigintillion', 'Thousand vigintillion',
-    'Thousand quinquavigintillion', 'Thousand trigintillion', 'Thousand quinquatrigintillion',
-    'Thousand quadragintillion', 'Thousand quinquaquadragintillion', 'Thousand quinquagintillion',
-    'Unquinquagintillion', 'Thousand unquinquagintillion', 'Duoquinquagintillion',
-    'Thousand quinquaquinquagintillion', 'Sesquinquagintillion', 'Thousand sexagintillion',
-    'Unsexagintillion', 'Thousand quinquasexagintillion', 'Thousand septuagintillion',
-    'Thousand quinquaseptuagintillion', 'Thousand octogintillion', 'Thousand quinquaoctogintillion',
-    'Thousand nonagintillion', 'Thousand quinquanonagintillion', 'Thousand centillion',
-    'Thousand quinquagintacentillion', 'Thousand ducentillion', 'Thousand quinquagintaducentillion',
-    'Thousand trecentillion', 'Thousand quinquagintatrecentillion', 'Thousand quadringentillion',
-    'Thousand quinquagintaquadringentillion', 'Thousand quingentillion'
-  ]
-  return dict[n / 3]
+function capitalize(string) {
+  let res = []
+  string.split(' ').forEach( (s) =>{
+    res.push(_initialCase(s))
+  })
+  if(res.length <= 1)
+    return res[0]
+  return res.join(' ')
 }
 
-function longIntlScale(n) {
+// long scale - Traditional British
+function longScale(n, len) {
+  if (len == 1000) return 'Millinillion'
+  if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0]
+  if (n < 100) return SHORT_SCALE_DICT.ultraLowValues[1]
+  if (n < 1000) return SHORT_SCALE_DICT.ultraLowValues[2]
+  if (n < 1e6) return SHORT_SCALE_DICT.lowValues[0]
+  let triadLength = Math.floor(len / 3) - 1
+  let prefixWord = (triadLength % 2 === 0) ? 'Thousand ' : ''
+  return `${prefixWord}${shortScale(n, Math.floor((len) / 6))}`
+}
+
+function longIntlScale(n, len) {
   // long scale - traditional european
-  const dict = ['',
-    'Thousand', 'Million', 'Milliard', 'Billion', 'Billiard', 'Trillion', 'Trilliard', 'Quadrillion',
-    'Quadrilliard', 'Quintillion', 'Quintilliard', 'Sextillion', 'Sextilliard', 'Septillion',
-    'Septilliard', 'Octillion', 'Octilliard', 'Nonillion', 'Nonilliard', 'Decillion',
-    'Decilliard', 'Undecillion', 'Undecilliard', 'Duodecillion', 'Duodecilliard', 'Tredecillion',
-    'Tredecilliard', 'Quattuordecillion', 'Quattuordecilliard', 'Quindecillion', 'Quindecilliard',
-    'Sedecillion', 'Sedecilliard', 'Septendecillion', 'Septendecilliard', 'Octodecillion',
-    'Octodecilliard', 'Novendecillion', 'Novendecilliard', 'Vigintillion', 'Vigintilliard',
-    'Quinquavigintilliard', 'Trigintilliard', 'Quinquatrigintilliard', 'Quadragintilliard',
-    'Quinquaquadragintilliard', 'Quinquagintilliard', 'Unquinquagintillion',
-    'Unquinquagintilliard', 'Duoquinquagintillion', 'Quinquaquinquagintilliard',
-    'Sesquinquagintillion', 'Sexagintilliard', 'Unsexagintillion', 'Quinquasexagintilliard',
-    'Septuagintilliard', 'Quinquaseptuagintilliard', 'Octogintilliard', 'Quinquaoctogintilliard',
-    'Nonagintilliard', 'Quinquanonagintilliard', 'Centilliard', 'Quinquagintacentilliard',
-    'Ducentilliard', 'Quinquagintaducentilliard', 'Trecentilliard',
-    'Quinquagintatrecentilliard', 'Quadringentilliard', 'Quinquagintaquadringentilliard',
-    'Quingentilliard'
-  ]
-  return dict[n / 3]
+  if (len == 1000) return 'Millinillion'
+  if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0]
+  if (n < 100) return SHORT_SCALE_DICT.ultraLowValues[1]
+  if (n < 1000) return SHORT_SCALE_DICT.ultraLowValues[2]
+  if (n < 1e6) return SHORT_SCALE_DICT.lowValues[0]
+  let triadLength = Math.floor(len / 3) - 1
+  let word = shortScale(n, Math.floor((len) / 6))
+  if (triadLength % 2 === 0){
+    word = word.replace(/llion$/,'lliard')
+  }
+  return word
+}
+
+function gameScale(n, len) {
+  const lowVal = ['', 'K', 'M', 'B', 'T']
+  let triadLength = Math.floor(len / 3)
+  if (n < 1e9) return lowVal[triadLength]
+  let firstLetter = String.fromCharCode(64 + (len % 24))
+  if(len < 24) return firstLetter
+  let secondLetter = String.fromCharCode(64 + Math.floor(len / 24))
+  if (len < 24 * 24) return `${firstLetter}${secondLetter}`
+  let thirdLetter = String.fromCharCode(64 + Math.floor(len / (24 * 24)))
+
+  return `${firstLetter}${secondLetter}${thirdLetter}`
 }
