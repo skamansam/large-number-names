@@ -25,7 +25,8 @@
   },
   "homepage": "https://github.com/skamansam/large-number-names#readme",
   "dependencies": {
-    "decimal.js": "^9.0.1"
+    "decimal.js": "^9.0.1",
+    "yarn": "^1.3.2"
   },
   "devDependencies": {
     "babel": "6.3.13",
