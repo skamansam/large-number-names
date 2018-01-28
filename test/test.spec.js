@@ -90,7 +90,7 @@ describe('numbers.js', () => {
     [shortn, longn, exp, shortName, longName, intlName, greekName, game_name] = testNum
     const num = '1e' + exp
     describe('Testing 10^' + exp, () => {
-/*      it('10^' + exp + ' should have the correct findShortN(): shortn', () => {
+      it('10^' + exp + ' should have the correct findShortN(): shortn', () => {
         expect(Numbers.findShortN(num)).to.equal(shortn)
       })
       it('10^' + exp + ' should have the correct length: exp', () => {
@@ -111,7 +111,7 @@ describe('numbers.js', () => {
         expect(res).to.be.a('string')
         expect(res).to.equal(intlName)
       })
-    */    })
+    })
   }
 
   let shortTests = [
@@ -154,12 +154,12 @@ describe('numbers.js', () => {
     [19, 105, 'BE'],  
     [48, 108, 'BF'],
     [19, 111, 'BG'],
-    [176 , 543, 'GE'],
-    [177, 573, 'AE'],
-    [9, 603, 'IE'],
-    [9, 903, 'MI'],
-    [9, 2703, 'MI'],
-    [9, 3003, 'MI']
+    [176 , 543, 'GU'],
+    [177, 573, 'HE'],
+    [292, 603, 'HO'],
+    [9, 903, 'LK'],
+    [9, 2703, 'AIM'],
+    [9, 3003, 'AMI']
   ]
   for (let testNum of shortTests) {
     let base24Index, exp, gameName
@@ -194,7 +194,7 @@ describe('numbers.js', () => {
   ]
   for (let testData of asciiTests) {
     const [num, expectedResult] = testData
-    describe(`_toBaseASCII(${num})`, () => {
+    describe(`testing _toBaseASCII(${num})`, () => {
       it('' + num + ' should have the correct ascii: ' + expectedResult, () => {
         expect(Numbers._toBaseASCII(num)).to.equal(expectedResult)
       })
@@ -211,12 +211,3 @@ describe('numbers.js', () => {
     expect(res).to.equal('Zi')
   })
 })
-
-
-/**
- * 16  8  1 
- * 8^3 8^2 8^1
- *
- * 50, 3 -> floor(50 / 8^2) = 3
- * 2, 2  -> (50 % 8^2 ) - (8) = 
- */

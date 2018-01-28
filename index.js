@@ -201,18 +201,13 @@ function gameScale(n, len) {
 }
 
 export function _toBaseASCII(num, precision){
-  console.log('_toBaseASCII: ',num, precision)
-  //if (precision < 0 || num < 0) return ''
   if (num <= 25) return String.fromCharCode(65 + num)
-
   if(precision == undefined || precision == null) {
     precision = Math.floor(Math.log(num) / Math.log(26))
   }
-
   const dividend = Math.pow(26, precision)
   const digit = Math.floor(num / dividend)
   const nextPlace = num % dividend
 
-  console.log(num, precision, dividend, digit)
   return String.fromCharCode(64 + digit) + _toBaseASCII(nextPlace, precision - 1)
 }
