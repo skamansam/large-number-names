@@ -1,17 +1,37 @@
 import Decimal from 'decimal.js'
-const NumberClass = Decimal
+let NumberClass = Decimal
 
-// constants so we can use them in other modules!
+/** Constant to let humanReadable() use the greek scale. */
 export const GREEK_SCALE = 0
+
+/** Constant to let humanReadable() use the greek scale. */
 export const SHORT_SCALE = 1
+
+/** Constant to let humanReadable() use the long english scale. ("thousands") */
 export const LONG_SCALE = 2
+
+/** Constant to let humanReadable() use the international scale. (using '-illiard') */
 export const INTL_SCALE = 3
+
+/** Constant to let humanReadable() use the game scale. (i.e. 'AA', 'AB', etc) */
 export const GAME_SCALE = 4
+
+/** Constant to let humanReadable() use abbreviations for the greek scale.*/
 export const GREEK_SCALE_ABBR = 5
+
+/** Constant to let humanReadable() use abbreviaitons for the short scale. */
 export const SHORT_SCALE_ABBR = 6
+
+/** Constant to let humanReadable() use abbreviations for the long scale. (using '') */
 export const LONG_SCALE_ABBR = 7
+
+/** Constant to let humanReadable() use abbreviations for the international scale. (using '-illiard') */
 export const INTL_SCALE_ABBR = 8
 
+/** 
+ * This is the scale used to generate the greek scale dictionary values. 
+ * This is taken from the Wikipedia page on names of large numbers. https://en.wikipedia.org/wiki/Names_of_large_numbers 
+ */
 export const GREEK_SCALE_DICT = [
   'Thousand', 'Million', 'Gillion',
   'Tetrillion', 'Pentillion', 'Hexillion',
@@ -25,6 +45,10 @@ export const GREEK_SCALE_DICT = [
   'Icosioktillion', 'Icosiennillion', 'Triacontillion'
 ]
 
+/** 
+ * This is the scale used to generate the dictionary values. 
+ * This is taken from the Wikipedia page on names of large numbers. https://en.wikipedia.org/wiki/Names_of_large_numbers 
+ */
 export const SHORT_SCALE_DICT = {
   ultraLowValues: ['', 'Ten', 'Hundred'],
   lowValues: ['Thousand', 'Million', 'Billion', 'Trillion', 'Quadrillion', 'Quintillion', 'Sextillion', 'Septillion', 'Octillion', 'Nonillion', 'Decillion'],
@@ -33,6 +57,11 @@ export const SHORT_SCALE_DICT = {
   hundredsPrefix: ['', 'centi', 'ducenti', 'trecenti', 'quadringenti', 'quingenti', 'sescenti', 'septingenti', 'octingenti', 'nongenti'],
 }
 
+/**
+ * The entry point for this library. The number given is automatically converted to the NumberClass given above. This defaults to using the Decimal library.
+ * @param {(string|number)} n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.
+ * @param {(number|function)=SHORT} scale either one of the constants that use a scale in this library, or custom function that trakes a number and length as parameters
+ */
 export function humanReadable(n, scale = SHORT) {
   let num = new NumberClass(n)
   switch (scale) {
@@ -52,6 +81,12 @@ export function humanReadable(n, scale = SHORT) {
 }
 export default humanReadable
 
+/**
+ * Get the number of places in a number. This is used to get the length of the number, minus one.
+ * So you can use this to do stuff like `3e${Number._places(`1e3`)}` to get '3e3' or 3000
+ * @param {(number|Decimal|string)} n the number to get the number of places for. 
+ * @returns {NumberClass} the number of digits in a number, minus 1
+ */
 export function _places(n) {
   let num = n
   if (!(n instanceof NumberClass)) {
@@ -63,11 +98,23 @@ export function _places(n) {
   return NumberClass.floor(NumberClass.log10(NumberClass.abs(num))).toNumber()
 }
 
+
+/**
+ * Run a custom function against the given number. The cusotm function is given two parameters: the number, and the length of the number, minus one.
+ * @param {string|number|Decimal} n the number to which to apply the scale
+ * @param {function} scaleFunction a function that takes in the parameters n, and the number of digits in the number, minus one.
+ * @returns {*} the result of the function
+ */
 export function customScale(n, scaleFunction) {
   const numberLength = _places(n)
   return scaleFunction(n, numberLength)
 }
 
+/**
+ * 
+ * @param {*} n 
+ * @param {*} len 
+ */
 function newGreekScale(n, len) {
   if (n === undefined || n < 1000) {
     return ''
@@ -82,9 +129,13 @@ function newGreekScale(n, len) {
   } else {
     result = GREEK_SCALE_DICT[idx]
   }
-  return capitalize(result)
+  return titleize(result)
 }
 
+/**
+ * 
+ * @param {*} n 
+ */
 export function findShortN(n) {
   let num = n
   if (!(n instanceof NumberClass)) {
@@ -96,6 +147,11 @@ export function findShortN(n) {
   return Math.floor((NumberClass.log(num) - 3) / 3)
 }
 
+/**
+ * 
+ * @param {Decimal} n 
+ * @param {Number} len 
+ */
 function shortScale(n, len) {
   if (len == 1000) return 'Millinillion'
   if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0]
@@ -117,9 +173,14 @@ function shortScale(n, len) {
   if (lastLetter == 'i' || lastLetter == 'a' || lastLetter == 'o')
     tensHundreds = tensHundreds.slice(0, tensHundreds.length - 1)
 
-  return capitalize(`${tensHundreds}${extraPrefix}`)
+  return titleize(`${tensHundreds}${extraPrefix}`)
 }
 
+/**
+ * 
+ * @param {String} prefix 
+ * @param {String} suffix 
+ */
 function correctWords(prefix, suffix) {
   if (suffix == '') return prefix
   if (prefix == '') return suffix
@@ -151,21 +212,31 @@ function correctWords(prefix, suffix) {
   return `${prefix}${conjoiner}${suffix}`
 }
 
-function _initialCase(string) {
+/**
+ * Capitalizes the first letter in the string, and lowercases the rest.
+ * @param {String} string 
+ */
+function capitalize(string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
-function capitalize(string) {
-  let res = []
-  string.split(' ').forEach( (s) =>{
-    res.push(_initialCase(s))
-  })
-  if(res.length <= 1)
-    return res[0]
-  return res.join(' ')
+/** 
+ * Capitalize each word in a phrase. The function name, `titleize` is a bit 
+ * of a misnomer, as this function does not adhere to any known
+ * title schema, such as APA, Chicago, AP, or MLA. This is to keep
+ * this method small and fast.
+ * This method depends on `capitalize()`
+ * @param {string} string the string to titleize
+ * @return {string} the titleized string
+ */
+export function titleize(string) {
+  return string.split(' ').map( s => capitalize(s)).join(' ')
 }
 
-// long scale - Traditional British
+/** 
+ * long scale - Traditional British
+ * This scale takes the short scale and adds a thousand to each value above 1e6.
+ */
 function longScale(n, len) {
   if (len == 1000) return 'Millinillion'
   if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0]
@@ -177,6 +248,12 @@ function longScale(n, len) {
   return `${prefixWord}${shortScale(n, Math.floor((len) / 6))}`
 }
 
+/**
+ * Long International Scale. 
+ * This scale adds an '-illiard' to every thousands place.
+ * @param {Decimal} the number we are working with 
+ * @param {Number} len the length of the number. use `#humanReadable` to automatically set this
+ */
 function longIntlScale(n, len) {
   // long scale - traditional european
   if (len == 1000) return 'Millinillion'
@@ -192,14 +269,27 @@ function longIntlScale(n, len) {
   return word
 }
 
+/**
+ * This is an abbreviation scale commonly used in games. It starts with the 
+ * familiar abbreviations through Trillion, then starts using 'AA', 'AB', etc. This 
+ * scale can be calculated for numbers larger than any needed. THe _n_ parameter is not even used,
+ * so you only need to pass in the length of the number.
+ * Uses `#_toBaseAscii()`
+ * @param {Decimal} n 
+ * @param {Number} len 
+ */
 function gameScale(n, len) {
   const lowVal = ['', 'K', 'M', 'B', 'T']
   let triadLength = Math.floor(len / 3)
   if (len < 15) return lowVal[triadLength]
-  let val = _toBaseASCII(triadLength - 5 + 26) // start at 'AA'
-  return val
+  return _toBaseASCII(triadLength - 5 + 26) // start at 'AA'
 }
 
+/**
+ * Convert a number to its ASCII form. zero is `A`, 25 is `Z', and 26 is 'AA', etc.
+ * @param {Number} num the number to convert. 
+ * @param {Number} precision if not given, will calculate the precision based on the number. should be in base 26. (This is really the number of places you want.)
+ */
 export function _toBaseASCII(num, precision){
   if (num <= 25) return String.fromCharCode(65 + num)
   if(precision == undefined || precision == null) {
