@@ -1,9 +1,8 @@
 import * as Numbers from "../index.js";
 
-//import [expect] as expect from 'chai'
-var expect = require("chai").expect;
+import { expect } from "chai";
 describe("numbers.js", () => {
-  let tests = [
+  const tests = [
     // ShortScaleIndex, LongScaleIndex, Exponent,
     //           ShortName,               LongName,               IntlName,       GreekName,  gameName,  Abbr, SciPrefix,
     [0, 0, 1, "Ten", "Ten", "Ten", "", ""],
@@ -641,19 +640,19 @@ describe("numbers.js", () => {
         expect(Numbers._places(num)).to.equal(exp);
       });
       it("10^" + exp + " should have the correct short: " + shortName, () => {
-        let res = Numbers.humanReadable(num, Numbers.SHORT_SCALE);
+        const res = Numbers.humanReadable(num, Numbers.SHORT_SCALE);
         expect(res).to.be.a("string");
         expect(res).to.equal(shortName);
       });
       it("10^" + exp + " should have the correct long: " + longName, () => {
-        let res = Numbers.humanReadable(num, Numbers.LONG_SCALE);
+        const res = Numbers.humanReadable(num, Numbers.LONG_SCALE);
         expect(res).to.be.a("string");
         expect(res).to.equal(longName);
       });
       it(
         "10^" + exp + " should have the correct international: " + intlName,
         () => {
-          let res = Numbers.humanReadable(num, Numbers.INTL_SCALE);
+          const res = Numbers.humanReadable(num, Numbers.INTL_SCALE);
           expect(res).to.be.a("string");
           expect(res).to.equal(intlName);
         },
@@ -661,7 +660,7 @@ describe("numbers.js", () => {
       it(
         "10^" + exp + " should have the correct greek name: " + greekName,
         () => {
-          let res = Numbers.humanReadable(num, Numbers.GREEK_SCALE);
+          const res = Numbers.humanReadable(num, Numbers.GREEK_SCALE);
           expect(res).to.be.a("string");
           expect(res).to.equal(greekName);
         },
@@ -669,7 +668,7 @@ describe("numbers.js", () => {
     });
   }
 
-  let gameNamesTests = [
+  const gameNamesTests = [
     [0, 1, ""],
     [0, 2, ""],
     [0, 3, "K"],
@@ -721,7 +720,7 @@ describe("numbers.js", () => {
     const num = "1e" + exp;
     describe("Testing 10^" + exp, () => {
       it("10^" + exp + " should have the correct game: " + gameName, () => {
-        let res = Numbers.humanReadable(num, Numbers.GAME_SCALE);
+        const res = Numbers.humanReadable(num, Numbers.GAME_SCALE);
         expect(res).to.be.a("string");
         expect(res).to.equal(gameName);
       });
