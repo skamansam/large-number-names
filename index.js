@@ -122,6 +122,30 @@ export const SHORT_SCALE_DICT = {
   ],
 };
 
+export const Scales = {
+  GREEK_SCALE,
+  SHORT_SCALE,
+  LONG_SCALE,
+  INTL_SCALE,
+  GAME_SCALE,
+  GREEK_SCALE_ABBR,
+  SHORT_SCALE_ABBR,
+  LONG_SCALE_ABBR,
+  INTL_SCALE_ABBR,
+};
+
+export const ScaleNames = {
+  "Greek Scale": GREEK_SCALE,
+  "Short Scale": SHORT_SCALE,
+  "Long Scale": LONG_SCALE,
+  "International Scale": INTL_SCALE,
+  "Game Scale": GAME_SCALE,
+  "Greek Scale, Abbreviated": GREEK_SCALE_ABBR,
+  "Short Scale, Abbreviated": SHORT_SCALE_ABBR,
+  "Long Scale, Abbreviated": LONG_SCALE_ABBR,
+  "International Scale, Abbreviated": INTL_SCALE_ABBR,
+};
+
 /**
  * The entry point for this library. The number given is automatically converted to the NumberClass given above. This defaults to using the Decimal library.
  * @param {(string|number)} n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.

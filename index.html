@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Large Number Names</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f0f0f0;
+            }
+            .container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+                margin-top: 10px;
+            }
+            textarea {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            #scale {
+                margin-bottom: 10px;
+            }
+        </style>
+        <script type="module">
+            import { ScaleNames, humanReadable } from "./index.js";
+            window.Scales = ScaleNames;
+            window.humanReadable = humanReadable;
+        </script>
+        <script>
+            function calculateLargeName() {
+                const input = document.getElementById("input").value;
+                const scale = document.getElementById("scale").value;
+                const output = document.getElementById("output");
+                if (input.length < 1) {
+                    output.value = "";
+                    return;
+                }
+                try {
+                    output.value = humanReadable(input, parseInt(scale));
+                } catch (error) {
+                    output.value = `Error calculating large number name. ${error.message}`;
+                }
+            }
+            document.addEventListener("DOMContentLoaded", (event) => {
+                const scaleElement = document.getElementById("scale");
+                for (const [scale, index] of Object.entries(window.Scales)) {
+                    const optionElem = document.createElement("Option");
+                    optionElem.textContent = scale;
+                    optionElem.selected = index === 1;
+                    optionElem.value = index;
+                    scaleElement.appendChild(optionElem);
+                }
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Large Number Names</h2>
+            <p>
+                Enter a large number and get its large number name in words. For
+                example, if you enter
+                <code>7.23e10</code> or <code>72300000000</code>, you will get
+                <code>Billion</code> for Short Scale. You can use underscores to
+                separate digits, like <code>72_300_000_000</code>.<br /><br />
+                <label for="scale"> Select Scale:</label>
+                <select id="scale" onchange="calculateLargeName()"></select>
+                <label for="input">Input Your Number Here:</label>
+                <textarea
+                    id="input"
+                    rows="5"
+                    placeholder="Enter your number here"
+                    oninput="calculateLargeName()"
+                ></textarea>
+                <label for="output">Your Large Number's Name:</label>
+                <textarea id="output" rows="5" readonly></textarea>
+                <button onclick="copyInput()">Copy Input to Output</button>
+            </p>
+        </div>
+    </body>
+</html>
