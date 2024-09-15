@@ -1,6 +1,8 @@
-import * as Numbers from "../index.js";
+import * as Numbers from "../lib/index.js";
+import { expect, test } from "vitest";
 
-import { expect } from "chai";
+const { describe } = test;
+
 describe("numbers.js", () => {
   const tests = [
     // ShortScaleIndex, LongScaleIndex, Exponent,

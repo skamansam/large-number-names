@@ -1,5 +1,28 @@
 import Decimal from "decimal.js";
-let NumberClass = Decimal;
+
+const NumberClass = Decimal;
+type NumberClass = Decimal;
+
+export enum ScalesEnum {
+  /** Constant to let humanReadable() use the greek scale. */
+  GREEK_SCALE,
+  /** Constant to let humanReadable() use the greek scale. */
+  SHORT_SCALE,
+  /** Constant to let humanReadable() use the long english scale. ("thousands") */
+  LONG_SCALE,
+  /** Constant to let humanReadable() use the international scale. (using '-illiard') */
+  INTL_SCALE,
+  /** Constant to let humanReadable() use the game scale. (i.e. 'AA', 'AB', etc) */
+  GAME_SCALE,
+  /** Constant to let humanReadable() use abbreviations for the greek scale.*/
+  GREEK_SCALE_ABBR,
+  /** Constant to let humanReadable() use abbreviaitons for the short scale. */
+  SHORT_SCALE_ABBR,
+  /** Constant to let humanReadable() use abbreviations for the long scale. (using '') */
+  LONG_SCALE_ABBR,
+  /** Constant to let humanReadable() use abbreviations for the international scale. (using '-illiard') */
+  INTL_SCALE_ABBR,
+}
 
 /** Constant to let humanReadable() use the greek scale. */
 export const GREEK_SCALE = 0;
@@ -147,27 +170,55 @@ export const ScaleNames = {
 };
 
 /**
- * The entry point for this library. The number given is automatically converted to the NumberClass given above. This defaults to using the Decimal library.
+ * Calculates the large number name of the given number.
  * @param {(string|number)} n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.
  * @param {(number|function)=SHORT} scale either one of the constants that use a scale in this library, or custom function that trakes a number and length as parameters
+ * @param {number=-1} displayDigits the number of digits to display after the decimal point. -1 disables displaying digits.
  */
-export function humanReadable(n, scale = SHORT) {
+export function humanReadableSuffix(
+  n: string | number,
+  scale: number | Function = SHORT,
+  displayDigits = -1
+) {
   let num = new NumberClass(n);
   switch (scale) {
     case GREEK_SCALE:
       return newGreekScale(num, _places(n));
     case SHORT_SCALE:
-      return shortScale(num, findShortN(n));
+      return shortScale(num);
     case LONG_SCALE:
       return customScale(num, longScale);
     case INTL_SCALE:
       return customScale(num, longIntlScale);
     case GAME_SCALE:
       return customScale(num, gameScale);
+    case GREEK_SCALE_ABBR:
+      return customScale(num, gameScale);
+    case SHORT_SCALE_ABBR:
+      return customScale(num, gameScale);
+    case LONG_SCALE_ABBR:
+      return customScale(num, gameScale);
+    case INTL_SCALE_ABBR:
+      return customScale(num, gameScale);
     default:
       return customScale(num, scale);
   }
 }
+
+/**
+ * The main entry point for this library. Will convert the number to a string with the appropriate suffix and precision.
+ * @param {(string|number)} n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.
+ * @param {(number|function)=SHORT} scale either one of the constants that use a scale in this library, or custom function that trakes a number and length as parameters
+ * @param {number=-1} displayDigits the number of digits to display after the decimal point. -1 disables displaying digits.
+ * @returns {string} the number with the appropriate suffix and precision.
+ */
+export function humanReadable(n, scale = SHORT, displayDigits = -1) {
+  const suffix = humanReadableSuffix(n, scale, displayDigits);
+  return displayDigits === -1
+    ? suffix
+    : `${n.toFixed(displayDigits)} ${suffix}`;
+}
+
 export default humanReadable;
 
 /**
@@ -176,7 +227,7 @@ export default humanReadable;
  * @param {(number|Decimal|string)} n the number to get the number of places for.
  * @returns {NumberClass} the number of digits in a number, minus 1
  */
-export function _places(n) {
+export function _places(n: number | NumberClass | string) {
   let num = n;
   if (!(n instanceof NumberClass)) {
     num = new NumberClass(n);
@@ -223,10 +274,14 @@ function newGreekScale(n, len) {
 }
 
 /**
+ * Calculates the length of a number in triplets for use in short scale naming.
+ * This function determines how many groups of three digits (triplets) are in the number,
+ * which is used to select the appropriate suffix in the short scale naming system.
  *
- * @param {*} n
+ * @param {string|number|Decimal} n - The number to calculate the length for. Can be a string, number, or Decimal object.
+ * @returns {number} The number of triplets in the number, minus 1. For example, for 1,000,000, it would return 1.
  */
-export function findShortN(n) {
+export function findLengthTriplets(n) {
   let num = n;
   if (!(n instanceof NumberClass)) {
     num = new NumberClass(n);
@@ -242,7 +297,8 @@ export function findShortN(n) {
  * @param {Decimal} n
  * @param {Number} len
  */
-function shortScale(n, len) {
+function shortScale(n) {
+  const len = findLengthTriplets(n);
   if (len == 1000) return "Millinillion";
   if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0];
   if (n < 100) return SHORT_SCALE_DICT.ultraLowValues[1];
@@ -258,11 +314,11 @@ function shortScale(n, len) {
   }
   const onesTens = correctWords(
     SHORT_SCALE_DICT.onesPrefix[onesIdx],
-    SHORT_SCALE_DICT.tensPrefix[tensIdx],
+    SHORT_SCALE_DICT.tensPrefix[tensIdx]
   );
   let tensHundreds = correctWords(
     onesTens,
-    SHORT_SCALE_DICT.hundredsPrefix[hundredsIdx],
+    SHORT_SCALE_DICT.hundredsPrefix[hundredsIdx]
   );
 
   const lastLetter = tensHundreds[tensHundreds.length - 1];
