@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Large Number Names</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background-color: #f0f0f0;
+            }
+            .container {
+                background-color: white;
+                padding: 20px;
+                border-radius: 5px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+                margin-top: 10px;
+            }
+            textarea {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            #scale {
+                margin-bottom: 10px;
+            }
+        </style>
+        <script type="module">
+            import { ScaleName, humanReadable } from "./lib/index.ts";
+            window.Scales = ScaleName;
+            window.humanReadable = humanReadable;
+        </script>
+        <script>
+            function calculateLargeName() {
+                const input = document.getElementById("input").value;
+                const precision = document.getElementById("precision").value;
+                if (input.length < 1) {
+                  output.value = "";
+                  return;
+                }
+                Object.entries(Scales).forEach(([index, scale]) => {
+                  const nameCell = document.getElementById(`name-${index}`);
+                  const timeCell = document.getElementById(`time-${index}`);
+                  try {
+                    performance.mark("calculation-started");
+                    const suffix = humanReadable(input, parseInt(index), parseInt(precision));
+                    performance.mark("calculation-ended");
+                    const timeToExecute = performance.measure("calculation-started", "calculation-ended");
+                    nameCell.textContent = suffix;
+                    timeCell.textContent = timeToExecute.duration.toFixed(3) + "ms";
+                  } catch (error) {
+                    nameCell.textContent = `Error calculating large number name. ${error.message}`;
+                    timeCell.textContent = '';
+                  }
+                });
+            }
+            document.addEventListener("DOMContentLoaded", (event) => {
+                const scaleElement = document.getElementById("scale");
+                for (const [index, scale] of Object.entries(window.Scales)) {
+                  const rowElem = document.createElement("tr");
+                  const scaleCell = document.createElement("td");
+                  scaleCell.textContent = scale;
+                  const timeCell = document.createElement("td");
+                  timeCell.id=`time-${index}`;
+                  const nameCell = document.createElement("td");
+                  nameCell.id=`name-${index}`;
+                  rowElem.appendChild(scaleCell);
+                  rowElem.appendChild(timeCell);
+                  rowElem.appendChild(nameCell);
+
+                  document.getElementById("results").appendChild(rowElem);
+                }
+                calculateLargeName();
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container">
+            <h2>Large Number Names</h2>
+            <p>
+                Enter a large number and get its large number name in words. For
+                example, if you enter
+                <code>7.23e10</code> or <code>72300000000</code>, you will get
+                <code>Billion</code> for Short Scale. You can use underscores to
+                separate digits, like <code>72_300_000_000</code>.<br /><br />
+                <label for="precision">
+                    Precision (-1 means only display the name):</label
+                >
+                <input id="precision" type="number" onchange="calculateLargeName()" value="-1" min="-1" autocomplete="off"></input>
+                <label for="input">Input Your Number Here:</label>
+                <textarea
+                    id="input"
+                    rows="5"
+                    placeholder="Enter your number here"
+                    oninput="calculateLargeName()"
+                >7.23e10</textarea>
+                <label for="output">Your Large Number's Name:</label>
+                <textarea id="output" rows="5" readonly></textarea>
+                <button onclick="copyInput()">Copy Input to Output</button>
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Scale</th>
+                      <th>Time</th>
+                      <th>Name</th>
+                    </tr>
+                  </thead>
+                  <tbody id="results">
+
+                  </tbody>
+                </table>
+            </p>
+        </div>
+    </body>
+</html>
