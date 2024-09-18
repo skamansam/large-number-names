@@ -1,9 +1,14 @@
-import * as Numbers from "../lib/index.js";
-import { expect, test } from "vitest";
+import {
+  Scale,
+  humanReadable,
+  humanReadableSuffix,
+  findLengthTriplets,
+  _places,
+  _toBaseASCII,
+} from "../lib/index.ts";
+import { expect, test as it, describe } from "vitest";
 
-const { describe } = test;
-
-describe("numbers.js", () => {
+describe("large-number-names.js", () => {
   const tests = [
     // ShortScaleIndex, LongScaleIndex, Exponent,
     //           ShortName,               LongName,               IntlName,       GreekName,  gameName,  Abbr, SciPrefix,
@@ -636,36 +641,36 @@ describe("numbers.js", () => {
     const num = "1e" + exp;
     describe("Testing 10^" + exp, () => {
       it("10^" + exp + " should have the correct findShortN(): shortn", () => {
-        expect(Numbers.findShortN(num)).to.equal(shortn);
+        expect(findLengthTriplets(num)).to.equal(shortn);
       });
       it("10^" + exp + " should have the correct length: exp", () => {
-        expect(Numbers._places(num)).to.equal(exp);
+        expect(_places(num)).to.equal(exp);
       });
       it("10^" + exp + " should have the correct short: " + shortName, () => {
-        const res = Numbers.humanReadable(num, Numbers.SHORT_SCALE);
+        const res = humanReadable(num, Scale.Short);
         expect(res).to.be.a("string");
         expect(res).to.equal(shortName);
       });
       it("10^" + exp + " should have the correct long: " + longName, () => {
-        const res = Numbers.humanReadable(num, Numbers.LONG_SCALE);
+        const res = humanReadable(num, Scale.Long);
         expect(res).to.be.a("string");
         expect(res).to.equal(longName);
       });
       it(
         "10^" + exp + " should have the correct international: " + intlName,
         () => {
-          const res = Numbers.humanReadable(num, Numbers.INTL_SCALE);
+          const res = humanReadable(num, Scale.International);
           expect(res).to.be.a("string");
           expect(res).to.equal(intlName);
-        },
+        }
       );
       it(
         "10^" + exp + " should have the correct greek name: " + greekName,
         () => {
-          const res = Numbers.humanReadable(num, Numbers.GREEK_SCALE);
+          const res = humanReadable(num, Scale.Greek);
           expect(res).to.be.a("string");
           expect(res).to.equal(greekName);
-        },
+        }
       );
     });
   }
@@ -722,7 +727,7 @@ describe("numbers.js", () => {
     const num = "1e" + exp;
     describe("Testing 10^" + exp, () => {
       it("10^" + exp + " should have the correct game: " + gameName, () => {
-        const res = Numbers.humanReadable(num, Numbers.GAME_SCALE);
+        const res = humanReadable(num, Scale.Game);
         expect(res).to.be.a("string");
         expect(res).to.equal(gameName);
       });
@@ -815,18 +820,18 @@ describe("numbers.js", () => {
     const [num, expectedResult] = testData;
     describe(`testing _toBaseASCII(${num})`, () => {
       it("" + num + " should have the correct ascii: " + expectedResult, () => {
-        expect(Numbers._toBaseASCII(num)).to.equal(expectedResult);
+        expect(_toBaseASCII(num)).to.equal(expectedResult);
       });
     });
   }
-  describe("testing custom function", () => {
+  it("testing custom function", () => {
     function myFun(num, len) {
       if (len >= 24) {
         return "Z" + myFun(num, len - 24);
       }
       return String.fromCharCode(len + 96);
     }
-    const res = Numbers.humanReadable("1e33", myFun);
+    const res = humanReadable("1e33", myFun);
     expect(res).to.equal("Zi");
   });
 });

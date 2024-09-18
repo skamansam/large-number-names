@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
-import { resolve } from "path";
+import path from "path";
 import { configDefaults } from "vitest/config";
+import fs from "fs";
 
 export default defineConfig({
   test: {
@@ -14,10 +15,25 @@ export default defineConfig({
   build: {
     copyPublicDir: false,
     lib: {
-      entry: resolve(__dirname, "lib/index.js"),
+      entry: path.resolve(__dirname, "lib/index.ts"),
       name: "Large Number Names",
       fileName: (format) => `large-number-names.${format}.js`,
       formats: ["es"],
     },
   },
+  plugins: [
+    {
+      name: "emit-index",
+      generateBundle() {
+        this.emitFile({
+          type: "asset",
+          fileName: "index.html",
+          source: fs.readFileSync(
+            path.resolve(__dirname, "site/index.html"),
+            "utf-8"
+          ),
+        });
+      },
+    },
+  ],
 });
