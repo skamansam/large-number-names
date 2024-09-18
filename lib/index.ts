@@ -2,60 +2,50 @@ import Decimal from "decimal.js";
 
 const NumberClass = Decimal;
 type NumberClass = Decimal;
+type LargeNumber = NumberClass | number;
 
-export enum ScalesEnum {
+export enum Scale {
   /** Constant to let humanReadable() use the greek scale. */
-  GREEK_SCALE,
+  Greek,
   /** Constant to let humanReadable() use the greek scale. */
-  SHORT_SCALE,
+  Short,
   /** Constant to let humanReadable() use the long english scale. ("thousands") */
-  LONG_SCALE,
+  Long,
   /** Constant to let humanReadable() use the international scale. (using '-illiard') */
-  INTL_SCALE,
+  International,
   /** Constant to let humanReadable() use the game scale. (i.e. 'AA', 'AB', etc) */
-  GAME_SCALE,
+  Game,
   /** Constant to let humanReadable() use abbreviations for the greek scale.*/
-  GREEK_SCALE_ABBR,
+  GreekAbbreviated,
   /** Constant to let humanReadable() use abbreviaitons for the short scale. */
-  SHORT_SCALE_ABBR,
+  ShortAbbreviated,
   /** Constant to let humanReadable() use abbreviations for the long scale. (using '') */
-  LONG_SCALE_ABBR,
+  LongAbbreviated,
   /** Constant to let humanReadable() use abbreviations for the international scale. (using '-illiard') */
-  INTL_SCALE_ABBR,
+  InternationalAbbreviated,
 }
 
-/** Constant to let humanReadable() use the greek scale. */
-export const GREEK_SCALE = 0;
-
-/** Constant to let humanReadable() use the greek scale. */
-export const SHORT_SCALE = 1;
-
-/** Constant to let humanReadable() use the long english scale. ("thousands") */
-export const LONG_SCALE = 2;
-
-/** Constant to let humanReadable() use the international scale. (using '-illiard') */
-export const INTL_SCALE = 3;
-
-/** Constant to let humanReadable() use the game scale. (i.e. 'AA', 'AB', etc) */
-export const GAME_SCALE = 4;
-
-/** Constant to let humanReadable() use abbreviations for the greek scale.*/
-export const GREEK_SCALE_ABBR = 5;
-
-/** Constant to let humanReadable() use abbreviaitons for the short scale. */
-export const SHORT_SCALE_ABBR = 6;
-
-/** Constant to let humanReadable() use abbreviations for the long scale. (using '') */
-export const LONG_SCALE_ABBR = 7;
-
-/** Constant to let humanReadable() use abbreviations for the international scale. (using '-illiard') */
-export const INTL_SCALE_ABBR = 8;
+/**
+ * When we want to use the names in a selection element, etc., we can use this dictionary.
+ */
+export const ScaleName = {
+  [Scale.Greek]: "Greek Scale",
+  [Scale.Short]: "Short Scale",
+  [Scale.Long]: "Long Scale",
+  [Scale.International]: "International Scale",
+  [Scale.Game]: "Game Scale",
+  [Scale.GreekAbbreviated]: "Greek Scale, Abbreviated",
+  [Scale.ShortAbbreviated]: "Short Scale, Abbreviated",
+  [Scale.LongAbbreviated]: "Long Scale, Abbreviated",
+  [Scale.InternationalAbbreviated]: "International Scale, Abbreviated",
+};
 
 /**
  * This is the scale used to generate the greek scale dictionary values.
- * This is taken from the Wikipedia page on names of large numbers. https://en.wikipedia.org/wiki/Names_of_large_numbers
+ * This is taken from the Wikipedia page on names of large numbers.
+ * https://en.wikipedia.org/wiki/Names_of_large_numbers
  */
-export const GREEK_SCALE_DICT = [
+export const GreekScaleDict = [
   "Thousand",
   "Million",
   "Gillion",
@@ -90,9 +80,10 @@ export const GREEK_SCALE_DICT = [
 
 /**
  * This is the scale used to generate the dictionary values.
- * This is taken from the Wikipedia page on names of large numbers. https://en.wikipedia.org/wiki/Names_of_large_numbers
+ * This is taken from the Wikipedia page on names of large numbers.
+ * https://en.wikipedia.org/wiki/Names_of_large_numbers
  */
-export const SHORT_SCALE_DICT = {
+export const ShortScaleDict = {
   ultraLowValues: ["", "Ten", "Hundred"],
   lowValues: [
     "Thousand",
@@ -145,60 +136,37 @@ export const SHORT_SCALE_DICT = {
   ],
 };
 
-export const Scales = {
-  GREEK_SCALE,
-  SHORT_SCALE,
-  LONG_SCALE,
-  INTL_SCALE,
-  GAME_SCALE,
-  GREEK_SCALE_ABBR,
-  SHORT_SCALE_ABBR,
-  LONG_SCALE_ABBR,
-  INTL_SCALE_ABBR,
-};
-
-export const ScaleNames = {
-  "Greek Scale": GREEK_SCALE,
-  "Short Scale": SHORT_SCALE,
-  "Long Scale": LONG_SCALE,
-  "International Scale": INTL_SCALE,
-  "Game Scale": GAME_SCALE,
-  "Greek Scale, Abbreviated": GREEK_SCALE_ABBR,
-  "Short Scale, Abbreviated": SHORT_SCALE_ABBR,
-  "Long Scale, Abbreviated": LONG_SCALE_ABBR,
-  "International Scale, Abbreviated": INTL_SCALE_ABBR,
-};
-
 /**
  * Calculates the large number name of the given number.
- * @param {(string|number)} n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.
- * @param {(number|function)=SHORT} scale either one of the constants that use a scale in this library, or custom function that trakes a number and length as parameters
- * @param {number=-1} displayDigits the number of digits to display after the decimal point. -1 disables displaying digits.
+ * @param n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.
+ * @param scale either one of the constants that use a scale in this library, or custom function that trakes a number and length as parameters
  */
 export function humanReadableSuffix(
-  n: string | number,
-  scale: number | Function = SHORT,
-  displayDigits = -1
-) {
-  let num = new NumberClass(n);
+  n: string | LargeNumber,
+  scale: Scale | Function = Scale.Short
+): string {
+  let num = !(n instanceof NumberClass) ? new NumberClass(n) : n;
+  if (num.isNaN()) return "NaN";
+  if (num.isZero()) return "0";
+  if (typeof scale === "function") return customScale(num, scale);
   switch (scale) {
-    case GREEK_SCALE:
-      return newGreekScale(num, _places(n));
-    case SHORT_SCALE:
-      return shortScale(num);
-    case LONG_SCALE:
+    case Scale.Greek:
+      return greekScale(num, _places(n));
+    case Scale.Short:
+      return shortScale(num, findLengthTriplets(num));
+    case Scale.Long:
       return customScale(num, longScale);
-    case INTL_SCALE:
+    case Scale.International:
       return customScale(num, longIntlScale);
-    case GAME_SCALE:
+    case Scale.Game:
       return customScale(num, gameScale);
-    case GREEK_SCALE_ABBR:
+    case Scale.GreekAbbreviated:
       return customScale(num, gameScale);
-    case SHORT_SCALE_ABBR:
+    case Scale.ShortAbbreviated:
       return customScale(num, gameScale);
-    case LONG_SCALE_ABBR:
+    case Scale.LongAbbreviated:
       return customScale(num, gameScale);
-    case INTL_SCALE_ABBR:
+    case Scale.InternationalAbbreviated:
       return customScale(num, gameScale);
     default:
       return customScale(num, scale);
@@ -207,16 +175,21 @@ export function humanReadableSuffix(
 
 /**
  * The main entry point for this library. Will convert the number to a string with the appropriate suffix and precision.
- * @param {(string|number)} n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.
- * @param {(number|function)=SHORT} scale either one of the constants that use a scale in this library, or custom function that trakes a number and length as parameters
- * @param {number=-1} displayDigits the number of digits to display after the decimal point. -1 disables displaying digits.
- * @returns {string} the number with the appropriate suffix and precision.
+ * @param  n string or number representing a number. due to limitations in JS, strings are preferred and won't have a limit.
+ * @param scale either one of the constants that use a scale in this library, or custom function that trakes a number and length as parameters
+ * @param displayDigits the number of digits to display after the decimal point. -1 disables displaying digits.
+ * @returns the number with the appropriate suffix and precision.
  */
-export function humanReadable(n, scale = SHORT, displayDigits = -1) {
-  const suffix = humanReadableSuffix(n, scale, displayDigits);
+export function humanReadable(
+  n: string | LargeNumber,
+  scale = Scale.Short,
+  displayDigits = -1
+): string {
+  let num = n instanceof NumberClass ? n : new NumberClass(n);
+  const suffix = humanReadableSuffix(num, scale);
   return displayDigits === -1
     ? suffix
-    : `${n.toFixed(displayDigits)} ${suffix}`;
+    : `${num.toExponential(displayDigits)} ${suffix}`;
 }
 
 export default humanReadable;
@@ -224,27 +197,25 @@ export default humanReadable;
 /**
  * Get the number of places in a number. This is used to get the length of the number, minus one.
  * So you can use this to do stuff like `3e${Number._places(`1e3`)}` to get '3e3' or 3000
- * @param {(number|Decimal|string)} n the number to get the number of places for.
- * @returns {NumberClass} the number of digits in a number, minus 1
+ * @param n the number to get the number of places for.
+ * @returns the number of digits in a number, minus 1
  */
-export function _places(n: number | NumberClass | string) {
-  let num = n;
-  if (!(n instanceof NumberClass)) {
-    num = new NumberClass(n);
-  }
-  if (num < 10) {
-    return 0;
-  }
+export function _places(n: string | LargeNumber): number {
+  let num = n instanceof NumberClass ? n : new NumberClass(n);
+  if (num.lt(10)) return 0;
   return NumberClass.floor(NumberClass.log10(NumberClass.abs(num))).toNumber();
 }
 
 /**
  * Run a custom function against the given number. The cusotm function is given two parameters: the number, and the length of the number, minus one.
- * @param {string|number|Decimal} n the number to which to apply the scale
- * @param {function} scaleFunction a function that takes in the parameters n, and the number of digits in the number, minus one.
- * @returns {*} the result of the function
+ * @param  n the number to which to apply the scale
+ * @param  scaleFunction a function that takes in the parameters n, and the number of digits in the number, minus one.
+ * @returns the result of the function
  */
-export function customScale(n, scaleFunction) {
+export function customScale(
+  n: string | LargeNumber,
+  scaleFunction: Function
+): string {
   const numberLength = _places(n);
   return scaleFunction(n, numberLength);
 }
@@ -254,21 +225,23 @@ export function customScale(n, scaleFunction) {
  * @param {*} n
  * @param {*} len
  */
-function newGreekScale(n, len) {
-  if (n === undefined || n < 1000) {
+function greekScale(n: string | LargeNumber, len: number) {
+  let num: NumberClass = n instanceof NumberClass ? n : new NumberClass(n);
+
+  if (num === undefined || num.lt(1000)) {
     return "";
   }
   const idx = Math.floor(len / 3) - 1;
   let result = "";
-  if (idx > GREEK_SCALE_DICT.length - 1) {
+  if (idx > GreekScaleDict.length - 1) {
     const maxNumber = 1e90;
     const maxDigits = 90;
-    let prefix = newGreekScale(n - maxNumber, len - maxDigits);
+    let prefix = greekScale(num.minus(maxNumber), len - maxDigits);
     result =
       (prefix !== "" ? prefix + " " : "") +
-      GREEK_SCALE_DICT[GREEK_SCALE_DICT.length - 1];
+      GreekScaleDict[GreekScaleDict.length - 1];
   } else {
-    result = GREEK_SCALE_DICT[idx];
+    result = GreekScaleDict[idx];
   }
   return titleize(result);
 }
@@ -278,18 +251,13 @@ function newGreekScale(n, len) {
  * This function determines how many groups of three digits (triplets) are in the number,
  * which is used to select the appropriate suffix in the short scale naming system.
  *
- * @param {string|number|Decimal} n - The number to calculate the length for. Can be a string, number, or Decimal object.
- * @returns {number} The number of triplets in the number, minus 1. For example, for 1,000,000, it would return 1.
+ * @param n - The number to calculate the length for. Can be a string, number, or Decimal object.
+ * @returns The number of triplets in the number, minus 1. For example, for 1,000,000, it would return 1.
  */
-export function findLengthTriplets(n) {
-  let num = n;
-  if (!(n instanceof NumberClass)) {
-    num = new NumberClass(n);
-  }
-  if (n < 1.0e6) {
-    return 0;
-  }
-  return Math.floor((NumberClass.log(num) - 3) / 3);
+export function findLengthTriplets(n: string | LargeNumber): number {
+  const num = n instanceof NumberClass ? n : new NumberClass(n);
+  if (num.lt(1.0e6)) return 0;
+  return num.log().minus(3).dividedBy(3).floor().toNumber();
 }
 
 /**
@@ -297,28 +265,29 @@ export function findLengthTriplets(n) {
  * @param {Decimal} n
  * @param {Number} len
  */
-function shortScale(n) {
-  const len = findLengthTriplets(n);
+function shortScale(n: LargeNumber, len: number) {
+  const num = n instanceof NumberClass ? n : new NumberClass(n);
+  // const len = findLengthTriplets(num);
   if (len == 1000) return "Millinillion";
-  if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0];
-  if (n < 100) return SHORT_SCALE_DICT.ultraLowValues[1];
-  if (n < 1000) return SHORT_SCALE_DICT.ultraLowValues[2];
-  if (len <= 10) return SHORT_SCALE_DICT.lowValues[len];
+  if (num.lt(10)) return ShortScaleDict.ultraLowValues[0];
+  if (num.lt(100)) return ShortScaleDict.ultraLowValues[1];
+  if (num.lt(1000)) return ShortScaleDict.ultraLowValues[2];
+  if (len <= 10) return ShortScaleDict.lowValues[len];
   const triad = len % 1000;
   const onesIdx = triad % 10;
   const tensIdx = Math.floor(triad / 10) % 10;
   const hundredsIdx = Math.floor(triad / 100);
   let extraPrefix = "illion";
   if (len > 1000) {
-    extraPrefix = shortScale(n, Math.floor(len / 1000));
+    extraPrefix = shortScale(n, findLengthTriplets(num));
   }
   const onesTens = correctWords(
-    SHORT_SCALE_DICT.onesPrefix[onesIdx],
-    SHORT_SCALE_DICT.tensPrefix[tensIdx]
+    ShortScaleDict.onesPrefix[onesIdx],
+    ShortScaleDict.tensPrefix[tensIdx]
   );
   let tensHundreds = correctWords(
     onesTens,
-    SHORT_SCALE_DICT.hundredsPrefix[hundredsIdx]
+    ShortScaleDict.hundredsPrefix[hundredsIdx]
   );
 
   const lastLetter = tensHundreds[tensHundreds.length - 1];
@@ -329,11 +298,11 @@ function shortScale(n) {
 }
 
 /**
- *
- * @param {String} prefix
- * @param {String} suffix
+ * Fixes the conjunction of names according to certain linguistic rules.
+ * @param prefix the prefix string
+ * @param suffix the suffix string
  */
-function correctWords(prefix, suffix) {
+function correctWords(prefix: string, suffix: string) {
   if (suffix == "") return prefix;
   if (prefix == "") return suffix;
 
@@ -354,8 +323,10 @@ function correctWords(prefix, suffix) {
     case "v":
       conjoiner = treOrSe ? "s" : "m";
       break;
+    // @ts-ignore
     case "d":
       if (treOrSe) break;
+      /* falls through */
     case "s":
     case "q":
     case "t":
@@ -366,9 +337,9 @@ function correctWords(prefix, suffix) {
 
 /**
  * Capitalizes the first letter in the string, and lowercases the rest.
- * @param {String} string
+ * @param string
  */
-function capitalize(string) {
+function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
 }
 
@@ -378,10 +349,10 @@ function capitalize(string) {
  * title schema, such as APA, Chicago, AP, or MLA. This is to keep
  * this method small and fast.
  * This method depends on `capitalize()`
- * @param {string} string the string to titleize
- * @return {string} the titleized string
+ * @param string the string to titleize
+ * @returns the titleized string
  */
-export function titleize(string) {
+export function titleize(string: string) {
   return string
     .split(" ")
     .map((s) => capitalize(s))
@@ -392,30 +363,30 @@ export function titleize(string) {
  * long scale - Traditional British
  * This scale takes the short scale and adds a thousand to each value above 1e6.
  */
-function longScale(n, len) {
+function longScale(n: number, len: number) {
   if (len == 1000) return "Millinillion";
-  if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0];
-  if (n < 100) return SHORT_SCALE_DICT.ultraLowValues[1];
-  if (n < 1000) return SHORT_SCALE_DICT.ultraLowValues[2];
-  if (n < 1e6) return SHORT_SCALE_DICT.lowValues[0];
+  if (n < 10) return ShortScaleDict.ultraLowValues[0];
+  if (n < 100) return ShortScaleDict.ultraLowValues[1];
+  if (n < 1000) return ShortScaleDict.ultraLowValues[2];
+  if (n < 1e6) return ShortScaleDict.lowValues[0];
   let triadLength = Math.floor(len / 3) - 1;
   let prefixWord = triadLength % 2 === 0 ? "Thousand " : "";
   return `${prefixWord}${shortScale(n, Math.floor(len / 6))}`;
 }
 
 /**
- * Long International Scale.
+ * Long International Scale, AKA Traditional European
  * This scale adds an '-illiard' to every thousands place.
- * @param {Decimal} the number we are working with
- * @param {Number} len the length of the number. use `#humanReadable` to automatically set this
+ * @param the number we are working with
+ * @param len the length of the number. use `#humanReadable` to automatically set this
  */
-function longIntlScale(n, len) {
-  // long scale - traditional european
+function longIntlScale(n: LargeNumber, len: number) {
   if (len == 1000) return "Millinillion";
-  if (n < 10) return SHORT_SCALE_DICT.ultraLowValues[0];
-  if (n < 100) return SHORT_SCALE_DICT.ultraLowValues[1];
-  if (n < 1000) return SHORT_SCALE_DICT.ultraLowValues[2];
-  if (n < 1e6) return SHORT_SCALE_DICT.lowValues[0];
+  let num = n instanceof NumberClass ? n : new NumberClass(n);
+  if (num.lt(10)) return ShortScaleDict.ultraLowValues[0];
+  if (num.lt(100)) return ShortScaleDict.ultraLowValues[1];
+  if (num.lt(1000)) return ShortScaleDict.ultraLowValues[2];
+  if (num.lt(1e6)) return ShortScaleDict.lowValues[0];
   let triadLength = Math.floor(len / 3) - 1;
   let word = shortScale(n, Math.floor(len / 6));
   if (triadLength % 2 === 0) {
@@ -430,31 +401,30 @@ function longIntlScale(n, len) {
  * scale can be calculated for numbers larger than any needed. THe _n_ parameter is not even used,
  * so you only need to pass in the length of the number.
  * Uses `#_toBaseAscii()`
- * @param {Decimal} n
- * @param {Number} len
+ * @param _n the number
+ * @param len the length of the number
  */
-function gameScale(n, len) {
+function gameScale(_n: LargeNumber, len: number) {
   const lowVal = ["", "K", "M", "B", "T"];
   let triadLength = Math.floor(len / 3);
   if (len < 15) return lowVal[triadLength];
-  return _toBaseASCII(triadLength - 5 + 26); // start at 'AA'
+  return _toBaseASCII(triadLength - 5 + 26, null); // start at 'AA'
 }
 
 /**
  * Convert a number to its ASCII form. zero is `A`, 25 is `Z', and 26 is 'AA', etc.
- * @param {Number} num the number to convert.
- * @param {Number} precision if not given, will calculate the precision based on the number. should be in base 26. (This is really the number of places you want.)
+ * @param num the number to convert.
+ * @param precision if not given, will calculate the precision based on the number. should be in base 26. (This is really the number of places you want.)
  */
-export function _toBaseASCII(num, precision) {
-  if (num <= 25) return String.fromCharCode(65 + num);
-  if (precision == undefined || precision == null) {
-    precision = Math.floor(Math.log(num) / Math.log(26));
-  }
-  const dividend = Math.pow(26, precision);
-  const digit = Math.floor(num / dividend);
-  const nextPlace = num % dividend;
+export function _toBaseASCII(n: LargeNumber, precision: number|null): string {
+  let num = n instanceof NumberClass ? n : new NumberClass(n);
+  if (num.lte(25)) return String.fromCharCode(num.add(65).toNumber());
+  const numPrecision = precision ?? num.ln().dividedBy(Math.log(26)).floor().toNumber();
+  const dividend = Math.pow(26, numPrecision);
+  const digit = num.dividedBy(dividend).floor().toNumber();
+  const nextPlace = num.modulo(dividend);
 
   return (
-    String.fromCharCode(64 + digit) + _toBaseASCII(nextPlace, precision - 1)
+    String.fromCharCode(64 + digit) + _toBaseASCII(nextPlace, numPrecision - 1)
   );
 }
